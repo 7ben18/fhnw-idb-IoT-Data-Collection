@@ -6,14 +6,7 @@ import adafruit_dht
 import analogio
 from ChainableLED import ChainableLED
 from lib import tm1637lib
-import busio
-from lib import adafruit_esp32spi as adafruit_esp32spi
-from lib import adafruit_esp32spi as adafruit_esp32spi_socket
-from lib import adafruit_minimqtt as adafruit_minimqtt
 import random
-#import requests
-
-# --------------------------------------------------------------------------
 
 # setup: RED_LED on pin D3
 led = digitalio.DigitalInOut(board.RED_LED)  # general-purpose RED LED on Pin D3
@@ -42,39 +35,6 @@ rgb_led.setColorRGB(0, 255, 0, 0)
 # setup: display
 display = tm1637lib.Grove4DigitDisplay(board.D9, board.D10) # nRF52840 D9, D10, Grove D4
 
-# TODO: Set your Wi-Fi ssid, password
-WIFI_SSID = "Ben's Hotspot" # "MY_SSID"
-WIFI_PASSWORD = "Trebolsan4201+" # "MY_PASSWORD"
-
-# ThingSpeak settings
-TS_CHANNEL_ID = "2049970" #"MY_CHANNEL_ID"
-TS_WRITE_API_KEY = "HJWGPNGYS1DS5609" # "MY_WRITE_API_KEY" # https://api.thingspeak.com/update?api_key=HJWGPNGYS1DS5609&field1=0
-TS_MQTT_BROKER = "mqtt.thingspeak.com"
-
-# Setup: FeatherWing ESP32 AirLift, nRF52840
-cs = digitalio.DigitalInOut(board.D13)
-rdy = digitalio.DigitalInOut(board.D11)
-rst = digitalio.DigitalInOut(board.D12)
-
-spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
-esp = adafruit_esp32spi.ESP_SPIcontrol(spi, cs, rdy, rst)
-
-while not esp.is_connected:
-    print("\nConnecting to Wi-Fi...")
-    try:
-        esp.connect_AP(WIFI_SSID, WIFI_PASSWORD)
-        rgb_led.setColorRGB(0, 0, 0, 225)
-    except RuntimeError as e:
-        print("Cannot connect to Wi-Fi", e)
-        continue
-
-print("Wi-Fi connected to", str(esp.ssid, "utf-8"))
-print("IP address", esp.pretty_ip(esp.ip_address))
-
-print("Successfull connected, press button to start meassure")
-
-# --------------------------------------------------------------------
-
 # Constants for meassurement
 dht_INTERVAL = 5
 
@@ -94,10 +54,10 @@ while True:
             rgb_led.setColorRGB(0, 0, 0, 0)
             time.sleep(0.1)
             led.value = False
-            rgb_led.setColorRGB(0, 0, 0, 225)
+            rgb_led.setColorRGB(0, 255, 0, 0)
             time.sleep(0.1)
 
-        rgb_led.setColorRGB(0, 0, 225, 0)
+        rgb_led.setColorRGB(0, 0, 0, 255)
 
         while measurement_on:
             # Take a measurement
@@ -131,10 +91,8 @@ while True:
             # Wait for the remaining time
             time.sleep(dht_INTERVAL - (end - start))
 
-# -------------------------------------------------------------------------
-
     # Check if button is pressed again
-    if sensor_button.value == True and measurement_on:
+    elif sensor_button.value == True and measurement_on:
         # Stop measurement
         measurement_on = False
 
@@ -147,13 +105,3 @@ while True:
         led.value = False
         time.sleep(5)  # Add a small delay to avoid accidental double-clicks# Write your code here :-)
         print("End of meassurement")
-
-# --------------------------------------------------------------------------
-
-#https://api.thingspeak.com/update?api_key=HJWGPNGYS1DS5609&field1=18&field2=12&field3=6&field4=101
-
-#url = 'https://api.thingspeak.com/update?api_key='
-#API_Key = 'HJWGPNGYS1DS5609'
-# field 1 = Temperature, field 2 = Humidity, field 3 = Light value, field 4 = Voltage
-#str_values = '&field1=' + str(temperature) + '&field2=' + str(humidity) + '&field3=' str(light_value) + '&field4=' str(voltage)
-#http_request = url + API_Key + str_values
