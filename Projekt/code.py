@@ -57,8 +57,8 @@ spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
 esp = adafruit_esp32spi.ESP_SPIcontrol(spi, cs, rdy, rst)
 
 # TODO: Set your Wi-Fi ssid, password
-WIFI_SSID = "LeaLan" #"LeaLan"
-WIFI_PASSWORD = "AllesPoebel" #"AllesPoebel"
+WIFI_SSID = "Ben's Hotspot" #"LeaLan"
+WIFI_PASSWORD = "Trebolsan4201+" #"AllesPoebel"
 
 # ThingSpeak settings
 TS_WRITE_API_KEY = "HJWGPNGYS1DS5609"
@@ -89,12 +89,66 @@ print("Successfull connected, press button to start meassure")
 post_url = "https://" + TS_HTTP_SERVER + "/update"
 
 # --------------------------------------------------------------------
+# create function for measuring
+def measure_all():
+    # Read the temperature and convert it to integer
+    temperature = int(round(dht.temperature))
+
+    # Read the humidity and convert it to integer
+    humidity = int(round(dht.humidity))
+
+    # Read the light_value and voltage and convert it to integer
+    light_value = sensor_light.value
+    voltage = round((light_value * 3.3) / 65536)
+
+    return temperature, humidity, light_value, voltage
+
+# create function for sending measurment to ThingSpeak
+def send_to_thingspeak(api_key, temperature, humidity, light_value, voltage):
+    """
+    Sends the provided temperature, humidity, light value, and voltage readings to the specified ThingSpeak channel
+    using the provided API key.
+
+    :param api_key: str, the ThingSpeak API key
+    :param temperature: int, the temperature reading
+    :param humidity: int, the humidity reading
+    :param light_value: int, the light value reading
+    :param voltage: int, the voltage reading
+    """
+    try:
+        # Create payload
+        payload = "api_key=" + api_key + \
+                  "&field1=" + str(temperature) + \
+                  "&field2=" + str(humidity) + \
+                  "&field3=" + str(light_value) + \
+                  "&field4=" + str(voltage)
+
+        # Send a single message
+        response = adafruit_requests.post(post_url, data=payload)
+
+        # Print the http status code; should be 200
+        print("Data successfully transported to ThingSpeak, response status: " + str(response.status_code))
+
+        response.close()
+
+    except RuntimeError as e:
+        # Reading doesn't always work! Just print error and we'll try again
+        print("|Timestamp {:d}:{:02d}:{:02d} | Temperature {:g} | Humidity {:g} | Light_value {:g} | Voltage {:g} |"
+        .format(t.tm_hour, t.tm_min, t.tm_sec, -1, -1, -1, -1))
+
+# --------------------------------------------------------------------
 
 # Constants for meassurement
 dht_INTERVAL = 10
 
 # Variable for Measurement start
 measurement_on = False
+
+# String format for measurments
+measurment_format = "|Timestamp {:d}:{:02d}:{:02d} | Temperature {:g} | Humidity {:g} | Light_value {:g} | Voltage {:g} |"
+
+# index_display
+index_display = 0
 
 # Main loop
 while True:
@@ -109,30 +163,30 @@ while True:
             start = time.time()
             t = time.localtime(start)
 
-            # Read the temperature and convert it to integer
-            temperature = int(round(dht.temperature))
-
-            # Read the humidity and convert it to integer
-            humidity = int(round(dht.humidity))
-
-            # Read the light_value and voltage and convert it to integer
-            light_value = sensor_light.value
-            voltage = round((light_value * 3.3) / 65536)
+            temperature, humidity, light_value, voltage = measure_all()
 
             # create a  list of measurement
             measurements = [str(temperature) + " C", str(humidity) + " H", str(light_value // 100) + "L", str(voltage // 1) + "V"]
 
-            # select random measurement
-            value = random.choice(measurements)
+            # select measurment by index_display
+            value = measurements[index_display]
 
             # display them on hardware
             display.show(value)
 
-            # Print timestamp, temperatur, humidity
-            output = ("|Timestamp {:d}:{:02d}:{:02d} | Temperature {:g} | Humidity {:g} | Light_value {:g} | Voltage {:g} |".format(t.tm_hour, t.tm_min, t.tm_sec, temperature, humidity, light_value, voltage))
+            # check numb of index_display
+            if index_display == 3:
+               # reset index_display to 0
+                index_display = 0
+            else:
+                # increment index_display by 1
+                index_display += 1
 
+            # Print timestamp, temperatur, humidity
+            output = (measurment_format.format(t.tm_hour, t.tm_min, t.tm_sec, temperature, humidity, light_value, voltage))
             print(output)
 
+            #send_to_thingspeak(TS_WRITE_API_KEY, temperature, humidity, light_value, voltage)
             try:
                 # Create payload
                 payload = "api_key=" + TS_WRITE_API_KEY + \
