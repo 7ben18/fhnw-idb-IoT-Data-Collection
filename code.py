@@ -133,15 +133,22 @@ def send_to_thingspeak(api_key, temperature, humidity, light_value, voltage):
         # Send a single message
         response = adafruit_requests.post(post_url, data=payload)
 
+        # change rgb color to yellow
+        time.sleep(0.5)
+        rgb_led.setColorRGB(0, 255, 255, 0)
+
         # Print the http status code; should be 200
         print("Data successfully transported to ThingSpeak, response status: " + str(response.status_code))
 
-        time.sleep(0.5)
         # change rgb color to blue
-        rgb_led.setColorRGB(0, 0, 0, 0)
+        time.sleep(0.5)
+        rgb_led.setColorRGB(0, 0, 0, 255)
         response.close()
 
     except RuntimeError as e:
+        # change rgb color to red
+        time.sleep(0.5)
+        rgb_led.setColorRGB(0, 255, 0, 0)
         # Reading doesn't always work! Just print error and we'll try again
         print("|Timestamp {:d}:{:02d}:{:02d} | Temperature {:g} | Humidity {:g} | Light_value {:g} | Voltage {:g} |"
         .format(t.tm_hour, t.tm_min, t.tm_sec, -1, -1, -1, -1))
@@ -165,7 +172,6 @@ while True:
 
     # check if button is pressed once
     if sensor_button.value == True and not measurement_on:
-        rgb_led.setColorRGB(0, 0, 0, 255)
 
         # start measurment
         measurement_on = True
