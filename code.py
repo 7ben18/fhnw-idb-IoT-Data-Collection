@@ -1,33 +1,30 @@
+#-------------------------------------Import-Libraries-----------------------------------
 # Libraries
 import board
 import digitalio
 import time
 import adafruit_dht
 import analogio
-
-# LED library
-from ChainableLED import ChainableLED
-
-from lib import tm1637lib
-# Librarie random for display
 import random
 
 # Libraries for data transport
 import busio
-from adafruit_esp32spi import adafruit_esp32spi
-from adafruit_esp32spi import adafruit_esp32spi_socket
+from adafruit_esp32spi import adafruit_esp32spi, adafruit_esp32spi_socket
 import adafruit_requests
 
-# import config file for Wlan Passwort and API Key
+# LED library and display
+from ChainableLED import ChainableLED
+from lib import tm1637lib
+
+# config file
 import config
 
-# --------------------------------------------------------------------------
-
+#-------------------------------------Hardware-Setup-------------------------------------
 # setup: RED_LED on pin D3
 led = digitalio.DigitalInOut(board.RED_LED)  # general-purpose RED LED on Pin D3
 led.direction = digitalio.Direction.OUTPUT
 
-# setup: button sensor
+# setup: Button sensor
 sensor_button = digitalio.DigitalInOut(board.A0) # nRF52840, Grove A0
 sensor_button.direction = digitalio.Direction.INPUT
 sensor_button.pull = digitalio.Pull.UP
@@ -46,7 +43,7 @@ NUMBER_OF_LEDS = 1
 # create rgb_led objecct
 rgb_led = ChainableLED(CLK_PIN, DATA_PIN, NUMBER_OF_LEDS)
 # set color of rgb_led to red
-rgb_led.setColorRGB(0, 255, 0, 0)
+rgb_led.setColorRGB(0, 96, 96, 96)
 
 # setup: display
 display = tm1637lib.Grove4DigitDisplay(board.D9, board.D10) # nRF52840 D9, D10, Grove D4
@@ -59,9 +56,10 @@ rst = digitalio.DigitalInOut(board.D12)
 spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
 esp = adafruit_esp32spi.ESP_SPIcontrol(spi, cs, rdy, rst)
 
-# TODO: Set your Wi-Fi ssid, password
-WIFI_SSID = config.WIFI_NAME_BEN
-WIFI_PASSWORD = config.WIFI_PW_BEN
+#-------------------------------------Wlan-Setup---------------------------------------
+# Set Wi-Fi ssid, password
+WIFI_SSID = config.WIFI_NAME_AARON
+WIFI_PASSWORD = config.WIFI_PW_AARON
 
 # ThingSpeak settings
 TS_WRITE_API_KEY = config.API_KEY
@@ -72,10 +70,10 @@ while not esp.is_connected:
     print("\nConnecting to Wi-Fi...")
     try:
         esp.connect_AP(WIFI_SSID, WIFI_PASSWORD)
-        rgb_led.setColorRGB(0, 0, 0, 225)
+        rgb_led.setColorRGB(0, 0, 255, 0)
     except ConnectionError as e:
         print("Cannot connect to Wi-Fi", e)
-        rgb_led.setColorRGB(0, 255, 165, 0)
+        rgb_led.setColorRGB(0, 255, 0, 0)
         continue
 
 # print connection status
@@ -91,9 +89,15 @@ print("Successfull connected, press button to start meassure")
 # Setup server url to ThingSpeak
 post_url = "https://" + TS_HTTP_SERVER + "/update"
 
-# --------------------------------------------------------------------
+#-------------------------------------Defining-Funktions-------------------------------------
 # create function for measuring
 def measure_all():
+    """
+    Measure temperature, humidity, light value, and voltage.
+
+    Returns:
+        A tuple containing the measured values for temperature, humidity, light value, and voltage.
+    """
     # Read the temperature and convert it to integer
     temperature = int(round(dht.temperature))
 
@@ -112,11 +116,11 @@ def send_to_thingspeak(api_key, temperature, humidity, light_value, voltage):
     Sends the provided temperature, humidity, light value, and voltage readings to the specified ThingSpeak channel
     using the provided API key.
 
-    :param api_key: str, the ThingSpeak API key
-    :param temperature: int, the temperature reading
-    :param humidity: int, the humidity reading
-    :param light_value: int, the light value reading
-    :param voltage: int, the voltage reading
+    api_key: str, the ThingSpeak API key
+    temperature: int, the temperature reading
+    humidity: int, the humidity reading
+    light_value: int, the light value reading
+    voltage: int, the voltage reading
     """
     try:
         # Create payload
@@ -132,6 +136,9 @@ def send_to_thingspeak(api_key, temperature, humidity, light_value, voltage):
         # Print the http status code; should be 200
         print("Data successfully transported to ThingSpeak, response status: " + str(response.status_code))
 
+        time.sleep(0.5)
+        # change rgb color to blue
+        rgb_led.setColorRGB(0, 0, 0, 0)
         response.close()
 
     except RuntimeError as e:
@@ -139,25 +146,27 @@ def send_to_thingspeak(api_key, temperature, humidity, light_value, voltage):
         print("|Timestamp {:d}:{:02d}:{:02d} | Temperature {:g} | Humidity {:g} | Light_value {:g} | Voltage {:g} |"
         .format(t.tm_hour, t.tm_min, t.tm_sec, -1, -1, -1, -1))
 
-# --------------------------------------------------------------------
-
+#-------------------------------------Measurments-Parameters-------------------------------------
 # Constants for meassurement
 dht_INTERVAL = 10
 
 # Variable for Measurement start
 measurement_on = False
 
-# String format for measurments
-measurment_format = "|Timestamp {:d}:{:02d}:{:02d} | Temperature {:g} | Humidity {:g} | Light_value {:g} | Voltage {:g} |"
-
 # index_display
 index_display = 0
 
+# String format for measurments
+measurment_format = "|Timestamp {:d}:{:02d}:{:02d} | Temperature {:g} | Humidity {:g} | Light_value {:g} | Voltage {:g} |"
+
+#-------------------------------------------Main-Loop---------------------------------------------
 # Main loop
 while True:
 
     # check if button is pressed once
     if sensor_button.value == True and not measurement_on:
+        rgb_led.setColorRGB(0, 0, 0, 255)
+
         # start measurment
         measurement_on = True
 
@@ -166,6 +175,7 @@ while True:
             start = time.time()
             t = time.localtime(start)
 
+            # call measure_all() funktion to get measured values
             temperature, humidity, light_value, voltage = measure_all()
 
             # create a  list of measurement
@@ -176,7 +186,6 @@ while True:
 
             # display them on hardware
             display.show(value)
-
             # check numb of index_display
             if index_display == 3:
                # reset index_display to 0
@@ -186,35 +195,14 @@ while True:
                 index_display += 1
 
             # Print timestamp, temperatur, humidity
-            output = (measurment_format.format(t.tm_hour, t.tm_min, t.tm_sec, temperature, humidity, light_value, voltage))
-            print(output)
+            print(measurment_format.format(t.tm_hour, t.tm_min, t.tm_sec, temperature, humidity, light_value, voltage))
 
-            #send_to_thingspeak(TS_WRITE_API_KEY, temperature, humidity, light_value, voltage)
-            try:
-                # Create payload
-                payload = "api_key=" + TS_WRITE_API_KEY + \
-                    "&field1=" + str(temperature) +\
-                    "&field2=" + str(humidity) +\
-                    "&field3=" + str(light_value) + \
-                    "&field4=" + str(voltage)
-
-                # Send a single message
-                response = adafruit_requests.post(post_url, data=payload)
-
-                # Print the http status code; should be 200
-                print("Data succesfully transported to ThingSpeak, response status: " + str(response.status_code))
-                #print("Successfull data transport to thingspeak! Status")
-
-                response.close()
-
-            except RuntimeError as e:
-                # Reading doesn't always work! Just print error and we'll try again
-                print("|Timestamp {:d}:{:02d}:{:02d} | Temperature {:g} | Humidity {:g} | Light_value {:g} | Voltage {:g} |"
-                .format(t.tm_hour, t.tm_min, t.tm_sec, -1, -1, -1, -1))
+            # try to send data to thingspeak
+            send_to_thingspeak(TS_WRITE_API_KEY, temperature, humidity, light_value, voltage)
 
             end = time.time()
             # Wait for the remaining time
             time.sleep(dht_INTERVAL - (end - start))
 
 
-# --------------------------------------------------------------------------
+# --------------------------------------END----------------------------------------------------------------------------------
