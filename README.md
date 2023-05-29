@@ -1,14 +1,19 @@
 # fhnw-idb-IoT-Data-Collection
 
 # ThingSpeak Channel
-ThingSpeak Channel: [hier](https://thingspeak.com/channels/2049970/private_show)
+- [ThingSpeak Channel](https://github.com/fhnw-imvs/fhnw-idb/tree/master/data-acquisition/CircuitPython)
 
 # Hardware 
-- Temperature and Humidity Sensor DHT11
-- Chainable RGB LED
+- [Temperature & Humidity Sensor (DHT11)](https://github.com/fhnw-imvs/fhnw-idb/wiki/Grove-Sensors#temperature--humidity-sensor-dht11)
+
+- [Light Sensor v1.2](https://github.com/fhnw-imvs/fhnw-idb/wiki/Grove-Sensors#light-sensor-v12)
+
+- [Chainable RGB LED](https://github.com/fhnw-imvs/fhnw-idb/wiki/Grove-Actuators#chainable-rgb-led)
+
+- [4-Digit Display (TM1637)](https://github.com/fhnw-imvs/fhnw-idb/wiki/Grove-Actuators#4-digit-display-tm1637)
 
 # Software
-- CircuitPython
+- [CircuitPython](https://github.com/fhnw-imvs/fhnw-idb/tree/master/data-acquisition/CircuitPython)
 
 # Repository Struktur
 
