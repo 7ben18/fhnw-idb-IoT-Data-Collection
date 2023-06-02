@@ -1,5 +1,3 @@
-# Write your code here :-)
-
 # API Thingspeak
 API_KEY = "###############"
 
