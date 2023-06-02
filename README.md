@@ -40,4 +40,6 @@ Anmeldung auf ThingSpeak erforderlich
 | ChainableLED | Bibliothek für die ChainableLEDs |
 | code.py | Main Code für den Circuitpython | 
 | config.py | Konfigurationsfile für den Circuitpython, API-Key, Passwort etc... |
+| umgeungsdaten.csv | Die gemessenen Umgebungsdaten als csv abgespeichert | 
 | README.md | Beschreibung des Repositorys |
+
