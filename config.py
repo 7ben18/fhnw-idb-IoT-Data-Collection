@@ -1,11 +1,16 @@
 # Write your code here :-)
-API_KEY = "HJWGPNGYS1DS5609"
 
-WIFI_NAME_BEN = "Ben's Hotspot"
-WIFI_PW_BEN = "Trebolsan4201+"
+# API Thingspeak
+API_KEY = "###############"
 
-WIFI_NAME_LEA = "LeaLan"
-WIFI_PW_LEA = "AllesPoebel"
+# Hotspot von Ben
+WIFI_NAME_BEN =  "###############"
+WIFI_PW_BEN =  "###############"
 
-WIFI_NAME_AARON = "Natel"
-WIFI_PW_AARON = "hm68mhw1pv3pweuo"
+# Hotspot von Lea
+WIFI_NAME_LEA =  "###############"
+WIFI_PW_LEA =  "###############"
+
+# Hotspot von Aaron
+WIFI_NAME_AARON =  "###############"
+WIFI_PW_AARON =  "###############"
