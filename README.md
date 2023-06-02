@@ -1,9 +1,22 @@
 # fhnw-idb-IoT-Data-Collection
 
+Im Rahmen des Moduls "idb - IoT-Datenbeschaffung" an der FHNW habe ich eine kleine Minichallenge durchgeführt, bei der ich Daten aus meiner Umgebung gesammelt habe und diese auf Thingspeak visualisiert. 
+
+![image](https://github.com/7ben18/fhnw-idb-IoT-Data-Collection/assets/66916399/95708a31-b6b6-4889-9a76-d2791d4472fa)
+
 # ThingSpeak Channel
-- [ThingSpeak Channel](https://github.com/fhnw-imvs/fhnw-idb/tree/master/data-acquisition/CircuitPython)
+- [ThingSpeak Channel](https://thingspeak.com/channels/2049970/private_show)
+
+![image](https://github.com/7ben18/fhnw-idb-IoT-Data-Collection/assets/66916399/f516581a-bea6-4bff-b32f-2ab9c7c578d7)
 
 # Hardware 
+
+- [Grove Shield for Feather](https://github.com/fhnw-imvs/fhnw-idb/wiki/Grove-Adapters#grove-shield-for-feather)
+
+- [Feather nRF52840 Express](https://github.com/fhnw-imvs/fhnw-idb/wiki/Feather-nRF52840-Express)
+
+- [Button](https://github.com/fhnw-imvs/fhnw-idb/wiki/Grove-Sensors#button)
+
 - [Temperature & Humidity Sensor (DHT11)](https://github.com/fhnw-imvs/fhnw-idb/wiki/Grove-Sensors#temperature--humidity-sensor-dht11)
 
 - [Light Sensor v1.2](https://github.com/fhnw-imvs/fhnw-idb/wiki/Grove-Sensors#light-sensor-v12)
