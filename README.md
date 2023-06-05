@@ -8,7 +8,7 @@ Im Rahmen des Moduls "idb - IoT-Datenbeschaffung" an der FHNW habe ich eine klei
 - [ThingSpeak Channel](https://thingspeak.com/channels/2049970/private_show)  
 Anmeldung auf ThingSpeak erforderlich
 
-![image](https://github.com/7ben18/fhnw-idb-IoT-Data-Collection/assets/66916399/f516581a-bea6-4bff-b32f-2ab9c7c578d7)
+![image](https://github.com/7ben18/fhnw-idb-IoT-Data-Collection/assets/66916399/937efd86-f8a9-4ed4-ab07-1791dc6f6f48)
 
 # Hardware 
 
